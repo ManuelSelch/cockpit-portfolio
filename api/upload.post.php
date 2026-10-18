@@ -1,5 +1,5 @@
 <?php
-// Install as Cockpit config/api/portfolio/upload.post.php. Never expose publicly.
+// Registered by the addon bootstrap at POST /api/portfolio/upload.
 $fail = function (int $status, string $message) {
     $this->response->status = $status;
     return ['error' => $message];

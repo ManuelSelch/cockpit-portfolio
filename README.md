@@ -4,7 +4,7 @@
 
 ## Install once
 
-See [AUTHORING.md](AUTHORING.md). The new CLI requires both the PortfolioAuthoring addon and the authenticated authoring API route. Installation/live compatibility verification are pending; no production content was changed while preparing this workflow. The existing [asset upload endpoint](UPLOAD.md) stays separate.
+See [AUTHORING.md](AUTHORING.md) for cloning/updating the addon and verifying its registered routes. The root bootstrap registers both authenticated authoring and image-upload routes. [Upload requirements](UPLOAD.md) are documented separately.
 
 ## Everyday workflow
 

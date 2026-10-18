@@ -1,5 +1,5 @@
 <?php
-// Install the entire PortfolioAuthoring directory under Cockpit addons/.
+// Install this repository directly under Cockpit addons/cockpit-portfolio/.
 // All project writes through Content::saveItem (including the editor) participate.
 $app = $this;
 $canonical = function ($value) use (&$canonical) {
@@ -27,6 +27,22 @@ $release = function () use (&$lock, &$historyId) {
 };
 register_shutdown_function($release);
 $GLOBALS['portfolio_authoring_v1'] = ['revision' => $revision, 'acquire' => $acquire, 'release' => $release];
+
+// Files under an addon's api/ directory are not automatically routed by Cockpit.
+// Register through the REST dispatcher so normal API authentication still runs.
+$app->on('restApi.config', function ($restApi) {
+    foreach (['authoring', 'upload'] as $name) {
+        $file = __DIR__ . "/api/{$name}.post.php";
+        $restApi->addEndPoint("/portfolio/{$name}", [
+            'POST' => function ($params, $app) use ($file) {
+                // File handlers use $this as the Cockpit application instance.
+                return (function () use ($file) {
+                    return include $file;
+                })->call($app);
+            },
+        ]);
+    }
+});
 
 $app->on('content.item.save.before.projects', function (&$item, $isUpdate, $collection) use ($app, $revision, $acquire, $release, &$historyId) {
     $acquire();

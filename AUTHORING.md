@@ -1,19 +1,31 @@
 # Install guarded authoring and history
 
-This is a prepared server-side integration, **not yet installed or live-verified**. No production writes were made during its development. Cockpit's standard content GET endpoints exclude drafts; this dedicated authenticated endpoint reads them without exposing them publicly.
+This addon is version-controlled at https://github.com/ManuelSelch/cockpit-portfolio. Cockpit's standard content GET endpoints exclude drafts; this authenticated addon route can read drafts while keeping them out of the public API.
 
-## Files to install
+## Install / update
 
-Copy these into the **active Cockpit installation** using your usual deployment process; do not modify core files:
+Clone once into Cockpit's active addons directory (adjust the parent path to your server's actual Cockpit layout):
 
-```text
-Repository                                              Cockpit installation
--------------------------------------------------------------------------
-docs/cockpit/addons/PortfolioAuthoring/bootstrap.php      addons/PortfolioAuthoring/bootstrap.php
-docs/cockpit/api/portfolio/authoring.post.php              config/api/portfolio/authoring.post.php
+```sh
+cd <Cockpit addons directory>
+git clone https://github.com/ManuelSelch/cockpit-portfolio.git
 ```
 
-Use your actual configured addons/config paths if customized. Install both before use. Reload Cockpit/PHP if OPcache retains old files. Keep the existing `portfolio/upload` route installed for images.
+It should look like:
+
+```text
+<Cockpit addons>/cockpit-portfolio/bootstrap.php
+<Cockpit addons>/cockpit-portfolio/api/authoring.post.php
+<Cockpit addons>/cockpit-portfolio/api/upload.post.php
+```
+
+After changes have been tested and committed, update the same checkout:
+
+```sh
+git -C <Cockpit addons directory>/cockpit-portfolio pull --ff-only
+```
+
+Do not copy these route files into Cockpit's separate `config/api/` directory. `bootstrap.php` registers them with Cockpit's REST dispatcher. Restart/reload Cockpit or PHP-FPM when needed to clear OPcache. Never pull unreviewed code directly into production; keep Cockpit storage/config backed up before updates.
 
 Requirements: PHP 8.1+ with JSON, random_bytes and flock; writable storage; a projects **collection** model; Cockpit Content save hooks and dataStorage interfaces. Interfaces were checked against upstream source, not yet this installed version. No local PHP executable was available: JS tests and PHP syntax parsing were performed, while runtime tests are pending.
 
@@ -40,13 +52,16 @@ Grant the dedicated API role `content/projects/read` and `content/projects/updat
 
 ## Verification after installation
 
-First, on a machine with PHP, from a checkout:
+First, on a machine with PHP, from this repository checkout:
 
 ```sh
-php -l docs/cockpit/addons/PortfolioAuthoring/bootstrap.php
-php -l docs/cockpit/api/portfolio/authoring.post.php
-php tests/cockpit-authoring-hooks.php
+php -l bootstrap.php
+php -l api/authoring.post.php
+php -l api/upload.post.php
+php tests/routes.php
 ```
+
+The route registration regression can also be run from the portfolio repo with `node --test docs/cockpit/cockpit-portfolio/tests/routes.test.mjs`.
 
 The isolated fixture tests editor/agent history, stale-revision rejection, preservation of human text/publication during media changes, revision stability and refusal when history storage fails. It does not connect to production.
 

@@ -1,5 +1,5 @@
 <?php
-// Install as config/api/portfolio/authoring.post.php after the addon.
+// Registered by the addon bootstrap at POST /api/portfolio/authoring.
 $fail = function (int $status, string $message) {
     $this->response->status = $status;
     return ['error' => $message];
